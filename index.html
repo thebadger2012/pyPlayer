@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+  <title>Sample CGI Script</title>
+  <script type="text/javascript" src="external/jquery/jquery.js"></script>
+  <script type="text/javascript" src="jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="jquery-ui.min.css">
+  <style>
+  .btnsize { width: 32px;
+             height: 32px;
+           }
+  #playlist { margin-top:2px;
+	    }
+  </style>
+  <script type="text/javascript">
+  $(document).ready(function() {
+    // autoload playlist
+    request = $.ajax({
+		url:	"/scripts/py/playlist.py",
+	   dataType:	"text",
+               type:	"get"
+		});
+    request.done(function(data, textStatus, jqXHR) {
+				$("#playlist").empty();
+				$("#playlist").html(data);
+				// add li handler function
+    				$( "ul.media li" ).each(function() {
+        				$(this).bind('click', function(e) {
+					var action = $(this).attr('id');
+        				// alert("You clicked on " + idClicked);
+				        request = $.ajax({
+						url:	"/scripts/py/action.py",
+               					data:    {action: action},
+	       					type:    "post"
+					});
+					request.done(function(data, textStatus, jqXHR) {
+						$("#stat").empty();
+						$("#stat").html(data);
+					});
+					request.fail(function(jqXHR, textStatus, errorThrown) {
+						$("#stat").empty();				
+						$("#stat").html(errorThrown);
+					});
+				});
+				 $(function() {
+					$( ".media" ).menu();
+				});
+		});
+    request.fail(function(jqXHR, textStatus, errorThrown) {
+				$("#playlist").empty();
+				$("#playlist").html(errorThrown);
+		});
+     });
+
+    $( "#mySliderDiv" ).slider({
+		orientation: "horizontal",
+		min: 0,
+		max: 100,
+		value: 50,
+		step: 5,
+		animate: "slow"
+    });
+
+    // add button handler function
+    $( "button" ).click(function() {
+	var action = $(this).attr('id');
+        request = $.ajax({
+		url:	"/scripts/py/action.py",
+               data:    {action: action},
+	       type:    "post"
+		});
+	request.done(function(data, textStatus, jqXHR) {
+				$("#stat").empty();
+				$("#stat").html(data);
+			});
+	request.fail(function(jqXHR, textStatus, errorThrown) {
+				$("#stat").empty();				
+				$("#stat").html(errorThrown);
+			});
+     
+     }); 
+    	
+  });
+  
+  </script>
+</head>
+<body>
+<div class="ui-widget ui-corner-all" style="border: solid 1px #F7AF39;padding: 5px;width: 50%;">
+  <h3 class="ui-widget-header ui-corner-all" style="padding: 1px;"> MPC Status </h3>
+<div id="stat"></div>
+<table>
+  <tr>
+    <td>
+      <button id="play" name="play" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+        <span class="ui-state-default ui-corner-all ui-icon ui-icon-play"> </span>
+      </button>
+    </td>
+    <td>
+      <button id="stop" name="stop" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+        <span class="ui-state-default ui-corner-all ui-icon ui-icon-stop"> </span>
+      </button>
+    </td>
+    <td>
+      <button id="prev" name="prev" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+        <span class="ui-state-default ui-corner-all ui-icon ui-icon-seek-prev"> </span>
+      </button>
+    </td>
+    <td>
+      <button id="next" name="next" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+        <span class="ui-state-default ui-corner-all ui-icon ui-icon-seek-next"> </span>
+      </button>
+    </td>   
+    <td>
+      <button id="vup" name="vup" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+        <span class="ui-state-default ui-corner-all ui-icon ui-icon-volume-on"> </span>
+      </button>
+    </td>
+    <td>
+      <button id="vdn" name="vdwn" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+        <span class="ui-state-default ui-corner-all ui-icon ui-icon-volume-off"> </span>
+      </button>
+    </td>
+  </tr>
+</table>
+<div id="mySliderDiv"></div>
+</div>
+<div id="playlist" class="ui-widget ui-corner-all" style="border: solid 1px #F7AF39;padding: 5px;width: 50%; font-size:.8em;">
+</div>
+</body>
+</html>
+
+
